@@ -20,36 +20,22 @@
         .stat-card.overdue .number { color: #dc3545; }
         .controls { padding: 20px 30px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
         .controls select, .controls input { padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
-        .controls select { min-width: 150px; }
-        .controls input { min-width: 250px; }
-        .refresh-btn { background: #1e3a5f; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .refresh-btn { background: #1e3a5f; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
         .refresh-btn:hover { background: #2d5a87; }
         .container { padding: 0 30px 30px; }
-        .table-wrapper { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-        th { background: #1e3a5f; color: white; padding: 14px 12px; text-align: left; font-size: 13px; font-weight: 600; position: sticky; top: 0; }
-        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: middle; }
+        .table-wrapper { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th { background: #1e3a5f; color: white; padding: 14px 12px; text-align: left; font-size: 13px; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
         tr:hover { background: #f8f9fa; }
-        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
         .status-completed { background: #d4edda; color: #155724; }
         .status-in-progress { background: #fff3cd; color: #856404; }
         .status-not-started { background: #e2e3e5; color: #383d41; }
-        .status-at-risk { background: #f8d7da; color: #721c24; }
-        .progress-bar { width: 100px; height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #28a745, #20c997); border-radius: 4px; transition: width 0.3s; }
-        .kpi-status { display: flex; align-items: center; gap: 5px; }
-        .kpi-dot { width: 10px; height: 10px; border-radius: 50%; }
-        .kpi-on-track { background: #28a745; }
-        .kpi-behind { background: #dc3545; }
-        .kpi-na { background: #6c757d; }
+        .progress-bar { width: 80px; height: 8px; background: #e9ecef; border-radius: 4px; }
+        .progress-fill { height: 100%; background: #28a745; border-radius: 4px; }
         .loading { text-align: center; padding: 60px; color: #666; }
-        .error { text-align: center; padding: 60px; color: #dc3545; }
         .last-updated { text-align: right; padding: 15px 30px; font-size: 12px; color: #666; }
-        @media (max-width: 768px) {
-            .header, .stats-bar, .controls, .container { padding-left: 15px; padding-right: 15px; }
-            .stat-card { min-width: 100px; padding: 10px 15px; }
-            .stat-card .number { font-size: 22px; }
-        }
     </style>
 </head>
 <body>
@@ -58,7 +44,7 @@
         <p>Transportation & Logistics Hub – Initiatives Dashboard</p>
     </div>
     
-    <div class="stats-bar" id="statsBar">
+    <div class="stats-bar">
         <div class="stat-card"><div class="number" id="totalCount">-</div><div class="label">Total</div></div>
         <div class="stat-card completed"><div class="number" id="completedCount">-</div><div class="label">Completed</div></div>
         <div class="stat-card in-progress"><div class="number" id="inProgressCount">-</div><div class="label">In Progress</div></div>
@@ -67,22 +53,13 @@
     </div>
     
     <div class="controls">
-        <select id="filterStatus">
+        <select id="filterStatus" onchange="applyFilters()">
             <option value="">All Statuses</option>
-            <option value="Not started">Not Started</option>
-            <option value="In progress">In Progress</option>
-            <option value="Completed">Completed</option>
-            <option value="At risk">At Risk</option>
+            <option value="not started">Not Started</option>
+            <option value="in progress">In Progress</option>
+            <option value="completed">Completed</option>
         </select>
-        <select id="filterType">
-            <option value="">All Types</option>
-            <option value="White paper">White Paper</option>
-            <option value="Research">Research</option>
-            <option value="POC">POC</option>
-            <option value="Training">Training</option>
-            <option value="Other">Other</option>
-        </select>
-        <input type="text" id="searchInput" placeholder="Search initiatives...">
+        <input type="text" id="searchInput" placeholder="Search initiatives..." oninput="applyFilters()">
         <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
     </div>
     
@@ -97,53 +74,41 @@
                         <th>Owner</th>
                         <th>Status</th>
                         <th>Progress</th>
-                        <th>Start</th>
-                        <th>End</th>
+                        <th>End Date</th>
                         <th>Primary KPI</th>
-                        <th>KPI Progress</th>
                         <th>Cost</th>
                         <th>Budget Source</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr><td colspan="12" class="loading">Loading data...</td></tr>
+                    <tr><td colspan="10" class="loading">Loading...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
-    
     <div class="last-updated">Last refreshed: <span id="lastRefresh">-</span></div>
 
     <script>
-        // REPLACE THIS WITH YOUR APPS SCRIPT WEB APP URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxVVVNhZti5Q6p_mZH6UfYMUJYHHHMkxe4Bppkvqwt25hR2znA2jcLeByxzAthKn6oz/exec
-';
+        // ⚠️ REPLACE THIS URL WITH YOUR APPS SCRIPT WEB APP URL
+        const API_URL = 'YOUR_WEB_APP_URL_HERE';
         
         let allData = [];
         
         async function loadData() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '<tr><td colspan="12" class="loading">Loading data...</td></tr>';
-            
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Network error');
                 allData = await response.json();
                 updateStats();
                 renderTable(allData);
                 document.getElementById('lastRefresh').textContent = new Date().toLocaleString();
             } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="12" class="error">Error loading data. Check API URL and permissions.</td></tr>';
-                console.error(error);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="10" class="loading">Error loading data</td></tr>';
             }
         }
         
         function updateStats() {
             const today = new Date();
-            today.setHours(0,0,0,0);
-            
             let total = 0, completed = 0, inProgress = 0, notStarted = 0, overdue = 0;
-            
             allData.forEach(item => {
                 if (!item.ID) return;
                 total++;
@@ -151,13 +116,8 @@
                 if (status === 'completed') completed++;
                 else if (status === 'in progress') inProgress++;
                 else if (status === 'not started') notStarted++;
-                
-                if (item['End Date'] && status !== 'completed') {
-                    const endDate = new Date(item['End Date']);
-                    if (endDate < today) overdue++;
-                }
+                if (item['End Date'] && status !== 'completed' && new Date(item['End Date']) < today) overdue++;
             });
-            
             document.getElementById('totalCount').textContent = total;
             document.getElementById('completedCount').textContent = completed;
             document.getElementById('inProgressCount').textContent = inProgress;
@@ -167,85 +127,37 @@
         
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
-            
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="12" class="loading">No initiatives found. Add data to your Google Sheet.</td></tr>';
-                return;
-            }
-            
+            if (!data.length) { tbody.innerHTML = '<tr><td colspan="10" class="loading">No data</td></tr>'; return; }
             tbody.innerHTML = data.map(item => {
-                const statusClass = getStatusClass(item.Status);
-                const progress = item['% Complete'] || 0;
-                const progressPercent = typeof progress === 'number' ? progress * 100 : parseFloat(progress) || 0;
-                const kpiStatus = getKpiStatus(item['KPI Target'], item['KPI Current']);
-                
-                return `
-                    <tr>
-                        <td>${item.ID || '-'}</td>
-                        <td><strong>${item.Initiative || '-'}</strong></td>
-                        <td>${item.Type || '-'}</td>
-                        <td>${item.Owner || '-'}</td>
-                        <td><span class="status-badge ${statusClass}">${item.Status || '-'}</span></td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
-                            </div>
-                            <small>${progressPercent.toFixed(0)}%</small>
-                        </td>
-                        <td>${formatDate(item['Start Date'])}</td>
-                        <td>${formatDate(item['End Date'])}</td>
-                        <td>${item['Primary KPI'] || '-'}</td>
-                        <td class="kpi-status">
-                            <span class="kpi-dot ${kpiStatus.dotClass}"></span>
-                            ${item['KPI Current'] || '-'} / ${item['KPI Target'] || '-'}
-                        </td>
-                        <td>${formatCost(item['Estimated Cost'])}</td>
-                        <td>${item['Budget Source'] || '-'}</td>
-                    </tr>
-                `;
+                const progress = Math.round((parseFloat(item['% Complete']) || 0) * 100);
+                const statusClass = (item.Status || '').toLowerCase().replace(' ', '-');
+                return `<tr>
+                    <td>${item.ID || ''}</td>
+                    <td><strong>${item.Initiative || ''}</strong></td>
+                    <td>${item.Type || ''}</td>
+                    <td>${item.Owner || ''}</td>
+                    <td><span class="status-badge status-${statusClass}">${item.Status || ''}</span></td>
+                    <td><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div> ${progress}%</td>
+                    <td>${item['End Date'] ? new Date(item['End Date']).toLocaleDateString() : ''}</td>
+                    <td>${item['Primary KPI'] || ''}</td>
+                    <td>${item['Estimated Cost'] ? '$' + item['Estimated Cost'].toLocaleString() : ''}</td>
+                    <td>${item['Budget Source'] || ''}</td>
+                </tr>`;
             }).join('');
         }
         
-        function getStatusClass(status) {
-            const s = (status || '').toLowerCase();
-            if (s === 'completed') return 'status-completed';
-            if (s === 'in progress') return 'status-in-progress';
-            if (s === 'not started') return 'status-not-started';
-            if (s === 'at risk') return 'status-at-risk';
-            return '';
-        }
-        
-        function getKpiStatus(target, current) {
-            if (!target || !current) return { dotClass: 'kpi-na' };
-            const t = parseFloat(target) || 0;
-            const c = parseFloat(current) || 0;
-            if (t === 0) return { dotClass: 'kpi-na' };
-            return c >= t * 0.8 ? { dotClass: 'kpi-on-track' } : { dotClass: 'kpi-behind' };
-        }
-        
-        function formatDate(dateVal) {
-            if (!dateVal) return '-';
-            const d = new Date(dateVal);
-            if (isNaN(d)) return '-';
-            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        }
-        
-        function formatCost(cost) {
-            if (!cost) return '-';
-            const num = parseFloat(cost);
-            if (isNaN(num)) return cost;
-            return '$' + num.toLocaleString();
-        }
-        
         function applyFilters() {
-            const statusFilter = document.getElementById('filterStatus').value.toLowerCase();
-            const typeFilter = document.getElementById('filterType').value.toLowerCase();
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
+            const status = document.getElementById('filterStatus').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allData.filter(item => {
-                const matchStatus = !statusFilter || (item.Status || '').toLowerCase() === statusFilter;
-                const matchType = !typeFilter || (item.Type || '').toLowerCase() === typeFilter;
-                const matchSearch = !searchTerm || 
-                    (item.Initiative || '').toLowerCase().includes(searchTerm) ||
-                    (item.Owner || '').toLowerCase().includes(searchTerm) ||
-                    (item
+                const matchStatus = !status || (item.Status || '').toLowerCase() === status;
+                const matchSearch = !search || (item.Initiative || '').toLowerCase().includes(search);
+                return matchStatus && matchSearch;
+            });
+            renderTable(filtered);
+        }
+        
+        loadData();
+    </script>
+</body>
+</html>
