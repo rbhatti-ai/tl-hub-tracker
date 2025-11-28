@@ -11,28 +11,84 @@
         .header h1 { font-size: 28px; margin-bottom: 8px; }
         .header p { opacity: 0.9; font-size: 14px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .stat-card { background: white; border-radius: 10px; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .stat-card h3 { font-size: 32px; color: #1a73e8; }
         .stat-card p { color: #666; font-size: 14px; margin-top: 4px; }
         .table-container { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
-        .table-header { padding: 16px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .table-header { padding: 20px 20px 0px 20px; display: flex; justify-content: space-between; align-items: center; }
         .table-header h2 { font-size: 18px; }
-        .refresh-btn { background: #1a73e8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .refresh-btn { background: #1a73e8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
         .refresh-btn:hover { background: #1557b0; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e0e0e0; }
-        th { background: #f8f9fa; font-weight: 600; font-size: 12px; text-transform: uppercase; color: #666; }
-        tr:hover { background: #f8f9fa; }
-        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-        .status-completed { background: #e6f4ea; color: #1e7e34; }
-        .status-in-progress { background: #fff3e0; color: #e65100; }
-        .status-not-started { background: #e3f2fd; color: #1565c0; }
-        .status-started { background: #e3f2fd; color: #1565c0; }
-        .status-at-risk { background: #ffebee; color: #c62828; }
-        .progress-bar { width: 100px; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
-        .progress-fill { height: 100%; background: #1a73e8; border-radius: 4px; }
+        th { font-size: 12px; color: #666; font-weight: 600; text-align: left; }
+        .table-header h2 { font-size: 20px; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; }
+        .status-badge.in-progress { background: #fff3cd; color: #856404; }
+        .status-badge.not-started { background: #d1ecf1; color: #0c5460; }
+        .status-badge.completed { background: #d4edda; color: #155724; }
+        .status-badge.at-risk { background: #f8d7da; color: #721c24; }
+        .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s, background-color 0.3s; }
         .loading { text-align: center; padding: 40px; color: #666; }
-        .last-updated { text-align: center; padding: 16px; color: #888; font-size: 12px; }
+        .last-updated { text-align: center; padding: 16px; color: #999; font-size: 12px; }
+        
+        /* Status Dial Styles */
+        .status-dial {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 3px solid;
+            position: relative;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        .status-dial::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 10px solid #333;
+            top: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            margin-left: -4px;
+            margin-top: -8px;
+        }
+        
+        .dial-red {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        }
+        
+        .dial-red::before {
+            transform: rotate(-45deg);
+            border-bottom-color: #dc2626;
+        }
+        
+        .dial-orange {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+        
+        .dial-orange::before {
+            transform: rotate(0deg);
+            border-bottom-color: #d97706;
+        }
+        
+        .dial-green {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+        
+        .dial-green::before {
+            transform: rotate(45deg);
+            border-bottom-color: #059669;
+        }
     </style>
 </head>
 <body>
@@ -43,19 +99,19 @@
 
     <div class="stats-grid">
         <div class="stat-card">
-            <h3 id="total-count">-</h3>
+            <h3 id="total-count">--</h3>
             <p>Total Initiatives</p>
         </div>
         <div class="stat-card">
-            <h3 id="completed-count">-</h3>
+            <h3 id="completed-count">--</h3>
             <p>Completed</p>
         </div>
         <div class="stat-card">
-            <h3 id="in-progress-count">-</h3>
+            <h3 id="in-progress-count">--</h3>
             <p>In Progress</p>
         </div>
         <div class="stat-card">
-            <h3 id="at-risk-count">-</h3>
+            <h3 id="at-risk-count">--</h3>
             <p>At Risk / Overdue</p>
         </div>
     </div>
@@ -70,31 +126,65 @@
     </div>
 
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbziQGcAwPmwKOsrfc9DMmDKpqDDzN5oc4PvZNAngcUzZ9scZhinKAAyXUMIcLUBttwJ/exec';
-        const DEMO_MODE = false;
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1QGcAwPmwKOsrfc9DWmDKpqDDzN5oc4PvZVAngcUzZ9scZhCinKA/exec';
+
+        function getProgressColor(percent) {
+            if (percent >= 67) return '#10b981'; // Green - nearly done
+            if (percent >= 34) return '#f59e0b'; // Orange - making progress
+            return '#ef4444'; // Red - just started
+        }
+
+        function getStatusDial(percent) {
+            let dialClass = 'dial-red';
+            let tooltip = 'Urgent attention needed';
+            
+            if (percent >= 67) {
+                dialClass = 'dial-green';
+                tooltip = 'On track';
+            } else if (percent >= 34) {
+                dialClass = 'dial-orange';
+                tooltip = 'Making progress';
+            }
+            
+            return '<span class="status-dial ' + dialClass + '" title="' + tooltip + ' (' + percent + '%)"></span>';
+        }
 
         function getStatusClass(status) {
-            const s = status.toLowerCase();
-            if (s.includes('completed')) return 'status-completed';
-            if (s.includes('progress')) return 'status-in-progress';
-            if (s.includes('not') || s.includes('started')) return 'status-not-started';
-            if (s.includes('risk')) return 'status-at-risk';
-            return 'status-not-started';
+            const lowerStatus = status.toLowerCase();
+            if (lowerStatus.includes('progress')) return 'in-progress';
+            if (lowerStatus.includes('not')) return 'not-started';
+            if (lowerStatus.includes('complete')) return 'completed';
+            if (lowerStatus.includes('started')) return 'in-progress';
+            return 'at-risk';
         }
 
-        function formatCurrency(n) {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(n);
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
-        function formatDate(d) {
-            return d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
+        function formatCurrency(amount) {
+            if (!amount) return 'N/A';
+            return '$' + Number(amount).toLocaleString();
         }
 
         function updateStats(data) {
-            const total = data.length;
-            const completed = data.filter(d => d.status.toLowerCase().includes('completed')).length;
-            const inProgress = data.filter(d => d.status.toLowerCase().includes('progress')).length;
-            const atRisk = data.filter(d => d.status.toLowerCase().includes('risk') || (new Date(d.endDate) < new Date() && !d.status.toLowerCase().includes('completed'))).length;
+            let total = 0, completed = 0, inProgress = 0, atRisk = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            data.forEach(r => {
+                total++;
+                const status = r.status.toLowerCase();
+                const endDate = new Date(r.endDate);
+                endDate.setHours(0, 0, 0, 0);
+
+                if (status.includes('complete')) completed++;
+                else if (status.includes('progress') || status.includes('started')) inProgress++;
+                
+                if (endDate < today && !status.includes('complete')) atRisk++;
+            });
 
             document.getElementById('total-count').textContent = total;
             document.getElementById('completed-count').textContent = completed;
@@ -104,12 +194,20 @@
 
         function renderTable(data) {
             let html = '<table><thead><tr><th>Initiative</th><th>Type</th><th>Owner</th><th>Status</th><th>Progress</th><th>End Date</th><th>Cost</th><th>Budget Source</th></tr></thead><tbody>';
+            
             data.forEach(r => {
-                html += '<tr><td><strong>' + r.initiative + '</strong></td><td>' + r.type + '</td><td>' + r.owner + '</td>';
+                html += '<tr>';
+                html += '<td>' + getStatusDial(r.percentComplete) + '<strong>' + r.initiative + '</strong></td>';
+                html += '<td>' + r.type + '</td>';
+                html += '<td>' + r.owner + '</td>';
                 html += '<td><span class="status-badge ' + getStatusClass(r.status) + '">' + r.status + '</span></td>';
-                html += '<td><div class="progress-bar"><div class="progress-fill" style="width:' + r.percentComplete + '%"></div></div> ' + r.percentComplete + '%</td>';
-                html += '<td>' + formatDate(r.endDate) + '</td><td>' + formatCurrency(r.estimatedCost) + '</td><td>' + r.budgetSource + '</td></tr>';
+                html += '<td><div class="progress-bar"><div class="progress-fill" style="width:' + r.percentComplete + '%; background-color:' + getProgressColor(r.percentComplete) + '"></div></div> ' + r.percentComplete + '%</td>';
+                html += '<td>' + formatDate(r.endDate) + '</td>';
+                html += '<td>' + formatCurrency(r.estimatedCost) + '</td>';
+                html += '<td>' + r.budgetSource + '</td>';
+                html += '</tr>';
             });
+            
             html += '</tbody></table>';
             document.getElementById('table-content').innerHTML = html;
             document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleString();
