@@ -216,7 +216,15 @@
         async function loadData() {
             document.getElementById('table-content').innerHTML = '<div class="loading">Loading...</div>';
             try {
-                const res = await fetch(APPS_SCRIPT_URL);
+               const res = await fetch(APPS_SCRIPT_URL, {
+  method: 'GET',
+  mode: 'cors',
+  redirect: 'follow',
+  headers: {
+    'Accept': 'application/json'
+  }
+});
+;
                 const data = await res.json();
                 updateStats(data);
                 renderTable(data);
